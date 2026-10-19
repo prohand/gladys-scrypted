@@ -1,0 +1,573 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "Scrypted",
+  "description": {
+    "en": "Scrypted cameras, doorbells, motion and object detection, switches and locks in Gladys.",
+    "fr": "Caméras, sonnettes, détection de mouvement et d'objets, prises et serrures de Scrypted.",
+    "de": "Kameras, Türklingeln, Bewegungs- und Objekterkennung, Schalter und Schlösser aus Scrypted.",
+    "es": "Cámaras, timbres, detección de movimiento y objetos, enchufes y cerraduras de Scrypted."
+  },
+  "version": "1.0.0",
+  "docker_image": "ghcr.io/prohand/gladys-scrypted:1.0.0",
+  "gladys_version": ">=5.1.0",
+  "cover_image": "https://raw.githubusercontent.com/prohand/gladys-scrypted/main/cover.png",
+  "categories": ["security", "multimedia"],
+  "transports": ["local", "cloud"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Getting started",
+        "fr": "Pour commencer",
+        "de": "Erste Schritte",
+        "es": "Primeros pasos"
+      },
+      "description": {
+        "en": "Gladys talks to your Scrypted server the way the Scrypted web console does. Give it the local address of the server, the Scrypted Cloud address, or both: the \"Prefer the local connection\" switch decides which one is tried first, the other one takes over when it does not answer. Use a Scrypted account made for Gladys, and preferably a login token instead of its password.",
+        "fr": "Gladys parle à votre serveur Scrypted comme le fait la console web de Scrypted. Donnez-lui l'adresse locale du serveur, l'adresse Scrypted Cloud, ou les deux : l'interrupteur « Préférer la connexion locale » choisit celle qui est essayée en premier, l'autre prend le relais quand elle ne répond pas. Utilisez un compte Scrypted créé pour Gladys, et de préférence un jeton de connexion plutôt que son mot de passe.",
+        "de": "Gladys spricht mit deinem Scrypted-Server so, wie es die Scrypted-Webkonsole tut. Gib die lokale Adresse des Servers an, die Scrypted-Cloud-Adresse oder beide: Der Schalter „Lokale Verbindung bevorzugen“ entscheidet, welche zuerst versucht wird, die andere springt ein, wenn sie nicht antwortet. Verwende ein eigenes Scrypted-Konto für Gladys und am besten ein Login-Token statt des Passworts.",
+        "es": "Gladys habla con su servidor Scrypted como lo hace la consola web de Scrypted. Indique la dirección local del servidor, la dirección de Scrypted Cloud o ambas: el interruptor «Preferir la conexión local» decide cuál se prueba primero, la otra toma el relevo cuando no responde. Use una cuenta de Scrypted creada para Gladys y, preferiblemente, un token de acceso en lugar de su contraseña."
+      },
+      "links": [
+        {
+          "url": "https://docs.scrypted.app",
+          "label": {
+            "en": "Scrypted documentation",
+            "fr": "Documentation Scrypted",
+            "de": "Scrypted-Dokumentation",
+            "es": "Documentación de Scrypted"
+          }
+        },
+        {
+          "url": "https://github.com/prohand/gladys-scrypted/blob/main/docs/en.md",
+          "label": {
+            "en": "Integration documentation",
+            "fr": "Documentation de l'intégration",
+            "de": "Dokumentation der Integration",
+            "es": "Documentación de la integración"
+          }
+        }
+      ]
+    },
+    {
+      "key": "local_url",
+      "type": "string",
+      "label": {
+        "en": "Local address",
+        "fr": "Adresse locale",
+        "de": "Lokale Adresse",
+        "es": "Dirección local"
+      },
+      "description": {
+        "en": "The address of the Scrypted server on your network, with its port: https://<ip>:10443/ by default. Its self-signed certificate is accepted.",
+        "fr": "L'adresse du serveur Scrypted sur votre réseau, avec son port : https://<ip>:10443/ par défaut. Son certificat auto-signé est accepté.",
+        "de": "Die Adresse des Scrypted-Servers in deinem Netzwerk, mit Port: standardmäßig https://<ip>:10443/. Sein selbstsigniertes Zertifikat wird akzeptiert.",
+        "es": "La dirección del servidor Scrypted en su red, con su puerto: https://<ip>:10443/ por defecto. Se acepta su certificado autofirmado."
+      },
+      "placeholder": {
+        "en": "https://192.168.1.20:10443/",
+        "fr": "https://192.168.1.20:10443/",
+        "de": "https://192.168.1.20:10443/",
+        "es": "https://192.168.1.20:10443/"
+      },
+      "required": false
+    },
+    {
+      "key": "cloud_url",
+      "type": "string",
+      "label": {
+        "en": "Scrypted Cloud address",
+        "fr": "Adresse Scrypted Cloud",
+        "de": "Scrypted-Cloud-Adresse",
+        "es": "Dirección de Scrypted Cloud"
+      },
+      "description": {
+        "en": "The address the Scrypted Cloud plugin gives your server (or your own domain behind it). Leave empty to stay on the local network.",
+        "fr": "L'adresse que le plugin Scrypted Cloud donne à votre serveur (ou votre propre domaine derrière lui). Laissez vide pour rester sur le réseau local.",
+        "de": "Die Adresse, die das Scrypted-Cloud-Plugin deinem Server gibt (oder deine eigene Domain dahinter). Leer lassen, um im lokalen Netzwerk zu bleiben.",
+        "es": "La dirección que el plugin Scrypted Cloud da a su servidor (o su propio dominio detrás). Déjela vacía para quedarse en la red local."
+      },
+      "placeholder": {
+        "en": "https://scrypted.example.com/",
+        "fr": "https://scrypted.exemple.fr/",
+        "de": "https://scrypted.beispiel.de/",
+        "es": "https://scrypted.ejemplo.es/"
+      },
+      "required": false
+    },
+    {
+      "key": "username",
+      "type": "string",
+      "label": {
+        "en": "User name",
+        "fr": "Nom d'utilisateur",
+        "de": "Benutzername",
+        "es": "Nombre de usuario"
+      },
+      "description": {
+        "en": "A Scrypted user (Settings, Users). An administrator sees every device; a user only sees the ones it was given.",
+        "fr": "Un utilisateur Scrypted (Paramètres, Utilisateurs). Un administrateur voit tous les appareils ; un utilisateur ne voit que ceux qui lui sont donnés.",
+        "de": "Ein Scrypted-Benutzer (Einstellungen, Benutzer). Ein Administrator sieht alle Geräte, ein Benutzer nur die ihm zugewiesenen.",
+        "es": "Un usuario de Scrypted (Ajustes, Usuarios). Un administrador ve todos los dispositivos; un usuario solo los que se le asignan."
+      },
+      "placeholder": {
+        "en": "gladys",
+        "fr": "gladys",
+        "de": "gladys",
+        "es": "gladys"
+      },
+      "required": true
+    },
+    {
+      "key": "password",
+      "type": "secret",
+      "label": {
+        "en": "Password or login token",
+        "fr": "Mot de passe ou jeton de connexion",
+        "de": "Passwort oder Login-Token",
+        "es": "Contraseña o token de acceso"
+      },
+      "description": {
+        "en": "The password of that user, or better a login token: run npx scrypted login on a computer of your network, then paste the token saved in ~/.scrypted/login.json. It is never written in the logs.",
+        "fr": "Le mot de passe de cet utilisateur, ou mieux un jeton de connexion : lancez npx scrypted login sur un ordinateur de votre réseau, puis collez le jeton enregistré dans ~/.scrypted/login.json. Il n'est jamais écrit dans les journaux.",
+        "de": "Das Passwort dieses Benutzers oder besser ein Login-Token: Führe npx scrypted login auf einem Computer in deinem Netzwerk aus und füge dann das in ~/.scrypted/login.json gespeicherte Token ein. Es wird nie in die Protokolle geschrieben.",
+        "es": "La contraseña de ese usuario o, mejor, un token de acceso: ejecute npx scrypted login en un ordenador de su red y pegue luego el token guardado en ~/.scrypted/login.json. Nunca se escribe en los registros."
+      },
+      "required": true
+    },
+    {
+      "key": "snapshot_interval",
+      "type": "number",
+      "label": {
+        "en": "Camera picture interval (s)",
+        "fr": "Intervalle des images caméra (s)",
+        "de": "Kamerabild-Intervall (s)",
+        "es": "Intervalo de imágenes de cámara (s)"
+      },
+      "description": {
+        "en": "How often each camera sends a fresh picture to Gladys, in seconds (10 minimum). 0 only sends pictures on events and on request.",
+        "fr": "Fréquence à laquelle chaque caméra envoie une nouvelle image à Gladys, en secondes (10 minimum). 0 n'envoie d'images que sur événement et à la demande.",
+        "de": "Wie oft jede Kamera ein neues Bild an Gladys sendet, in Sekunden (mindestens 10). 0 sendet Bilder nur bei Ereignissen und auf Anfrage.",
+        "es": "Con qué frecuencia cada cámara envía una imagen nueva a Gladys, en segundos (mínimo 10). 0 solo envía imágenes en eventos y bajo demanda."
+      },
+      "required": false,
+      "default": 60,
+      "min": 0,
+      "max": 3600
+    },
+    {
+      "key": "snapshot_on_event",
+      "type": "boolean",
+      "label": {
+        "en": "Picture on every event",
+        "fr": "Image à chaque événement",
+        "de": "Bild bei jedem Ereignis",
+        "es": "Imagen en cada evento"
+      },
+      "description": {
+        "en": "Send a fresh picture of the camera when it sees motion, an object or a doorbell press.",
+        "fr": "Envoie une nouvelle image de la caméra quand elle voit un mouvement, un objet ou un appui sur la sonnette.",
+        "de": "Sendet ein neues Bild der Kamera, wenn sie eine Bewegung, ein Objekt oder ein Klingeln erkennt.",
+        "es": "Envía una imagen nueva de la cámara cuando ve movimiento, un objeto o una pulsación del timbre."
+      },
+      "required": false,
+      "default": true
+    },
+    {
+      "key": "detection_cooldown",
+      "type": "number",
+      "label": {
+        "en": "Object detection pause (s)",
+        "fr": "Pause entre détections (s)",
+        "de": "Pause zwischen Erkennungen (s)",
+        "es": "Pausa entre detecciones (s)"
+      },
+      "description": {
+        "en": "After an \"object detected\" event, the same camera waits this many seconds before firing it again for the same kind of object: a person walking by is one event, not thirty.",
+        "fr": "Après un événement « objet détecté », la même caméra attend ce nombre de secondes avant de le redéclencher pour le même type d'objet : une personne qui passe, c'est un événement, pas trente.",
+        "de": "Nach einem Ereignis „Objekt erkannt“ wartet dieselbe Kamera so viele Sekunden, bevor sie es für dieselbe Objektart erneut auslöst: Eine vorbeigehende Person ist ein Ereignis, nicht dreißig.",
+        "es": "Tras un evento «objeto detectado», la misma cámara espera estos segundos antes de volver a lanzarlo para el mismo tipo de objeto: una persona que pasa es un evento, no treinta."
+      },
+      "required": false,
+      "default": 30,
+      "min": 0,
+      "max": 3600
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 60
+    },
+    {
+      "key": "sync_devices",
+      "label": {
+        "en": "Synchronize the devices",
+        "fr": "Synchroniser les appareils",
+        "de": "Geräte synchronisieren",
+        "es": "Sincronizar los dispositivos"
+      },
+      "timeout_seconds": 30
+    }
+  ],
+  "widgets": [
+    {
+      "key": "scrypted_status",
+      "label": {
+        "en": "Scrypted",
+        "fr": "Scrypted",
+        "de": "Scrypted",
+        "es": "Scrypted"
+      },
+      "description": {
+        "en": "Connection, devices and the last motions, rings and objects seen.",
+        "fr": "Connexion, appareils et derniers mouvements, sonneries et objets vus.",
+        "de": "Verbindung, Geräte und die letzten Bewegungen, Klingeln und Objekte.",
+        "es": "Conexión, dispositivos y últimos movimientos, timbres y objetos vistos."
+      },
+      "icon": "video",
+      "action_timeout_seconds": 60
+    },
+    {
+      "key": "scrypted_camera",
+      "label": {
+        "en": "Scrypted camera",
+        "fr": "Caméra Scrypted",
+        "de": "Scrypted-Kamera",
+        "es": "Cámara Scrypted"
+      },
+      "description": {
+        "en": "The last picture of one camera, its motion and a picture button.",
+        "fr": "La dernière image d'une caméra, son mouvement et un bouton pour une image.",
+        "de": "Das letzte Bild einer Kamera, ihre Bewegung und eine Bild-Taste.",
+        "es": "La última imagen de una cámara, su movimiento y un botón de imagen."
+      },
+      "icon": "camera",
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        }
+      ],
+      "action_timeout_seconds": 30
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "motion_detected",
+      "label": {
+        "en": "A Scrypted camera sees motion",
+        "fr": "Une caméra Scrypted détecte un mouvement",
+        "de": "Eine Scrypted-Kamera erkennt Bewegung",
+        "es": "Una cámara Scrypted detecta movimiento"
+      },
+      "description": {
+        "en": "A camera or a motion sensor of Scrypted goes from still to motion.",
+        "fr": "Une caméra ou un détecteur de mouvement de Scrypted passe du calme au mouvement.",
+        "de": "Eine Kamera oder ein Bewegungsmelder von Scrypted wechselt von Ruhe zu Bewegung.",
+        "es": "Una cámara o un sensor de movimiento de Scrypted pasa de reposo a movimiento."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
+          "required": false
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l'appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        }
+      ]
+    },
+    {
+      "key": "doorbell_pressed",
+      "label": {
+        "en": "A Scrypted doorbell is pressed",
+        "fr": "On sonne à une sonnette Scrypted",
+        "de": "Eine Scrypted-Türklingel wird gedrückt",
+        "es": "Se pulsa un timbre de Scrypted"
+      },
+      "description": {
+        "en": "The button of a doorbell camera known to Scrypted is pressed.",
+        "fr": "Le bouton d'une sonnette vidéo connue de Scrypted est pressé.",
+        "de": "Die Taste einer Videotürklingel, die Scrypted kennt, wird gedrückt.",
+        "es": "Se pulsa el botón de un videotimbre conocido por Scrypted."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Doorbell",
+            "fr": "Sonnette",
+            "de": "Türklingel",
+            "es": "Timbre"
+          },
+          "required": false
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l'appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        }
+      ]
+    },
+    {
+      "key": "object_detected",
+      "label": {
+        "en": "A Scrypted camera detects an object",
+        "fr": "Une caméra Scrypted détecte un objet",
+        "de": "Eine Scrypted-Kamera erkennt ein Objekt",
+        "es": "Una cámara Scrypted detecta un objeto"
+      },
+      "description": {
+        "en": "The object detection of Scrypted (NVR or a detection plugin) recognizes a person, a vehicle, an animal…",
+        "fr": "La détection d'objets de Scrypted (NVR ou un plugin de détection) reconnaît une personne, un véhicule, un animal…",
+        "de": "Die Objekterkennung von Scrypted (NVR oder ein Erkennungs-Plugin) erkennt eine Person, ein Fahrzeug, ein Tier…",
+        "es": "La detección de objetos de Scrypted (NVR o un plugin de detección) reconoce una persona, un vehículo, un animal…"
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": false
+        },
+        {
+          "key": "class",
+          "type": "multi_select",
+          "label": {
+            "en": "Object",
+            "fr": "Objet",
+            "de": "Objekt",
+            "es": "Objeto"
+          },
+          "options": [
+            {
+              "value": "person",
+              "label": {
+                "en": "Person",
+                "fr": "Personne",
+                "de": "Person",
+                "es": "Persona"
+              }
+            },
+            {
+              "value": "vehicle",
+              "label": {
+                "en": "Vehicle",
+                "fr": "Véhicule",
+                "de": "Fahrzeug",
+                "es": "Vehículo"
+              }
+            },
+            {
+              "value": "animal",
+              "label": {
+                "en": "Animal",
+                "fr": "Animal",
+                "de": "Tier",
+                "es": "Animal"
+              }
+            },
+            {
+              "value": "package",
+              "label": {
+                "en": "Package",
+                "fr": "Colis",
+                "de": "Paket",
+                "es": "Paquete"
+              }
+            },
+            {
+              "value": "face",
+              "label": {
+                "en": "Face",
+                "fr": "Visage",
+                "de": "Gesicht",
+                "es": "Cara"
+              }
+            },
+            {
+              "value": "plate",
+              "label": {
+                "en": "License plate",
+                "fr": "Plaque d'immatriculation",
+                "de": "Kennzeichen",
+                "es": "Matrícula"
+              }
+            },
+            {
+              "value": "other",
+              "label": {
+                "en": "Other object",
+                "fr": "Autre objet",
+                "de": "Anderes Objekt",
+                "es": "Otro objeto"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l'appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        },
+        {
+          "key": "class",
+          "type": "string",
+          "label": {
+            "en": "Object",
+            "fr": "Objet",
+            "de": "Objekt",
+            "es": "Objeto"
+          }
+        },
+        {
+          "key": "label",
+          "type": "string",
+          "label": {
+            "en": "Name (face, plate)",
+            "fr": "Nom (visage, plaque)",
+            "de": "Name (Gesicht, Kennzeichen)",
+            "es": "Nombre (cara, matrícula)"
+          }
+        },
+        {
+          "key": "score",
+          "type": "number",
+          "label": {
+            "en": "Confidence (%)",
+            "fr": "Confiance (%)",
+            "de": "Konfidenz (%)",
+            "es": "Confianza (%)"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "take_snapshot",
+      "label": {
+        "en": "Take a picture with a Scrypted camera",
+        "fr": "Prendre une image avec une caméra Scrypted",
+        "de": "Bild mit einer Scrypted-Kamera aufnehmen",
+        "es": "Tomar una imagen con una cámara Scrypted"
+      },
+      "description": {
+        "en": "Send a fresh picture of the camera to Gladys, ready to be sent in a message.",
+        "fr": "Envoie une nouvelle image de la caméra à Gladys, prête à être envoyée dans un message.",
+        "de": "Sendet ein neues Bild der Kamera an Gladys, bereit zum Versenden in einer Nachricht.",
+        "es": "Envía una imagen nueva de la cámara a Gladys, lista para enviarla en un mensaje."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "captured",
+          "type": "boolean",
+          "label": {
+            "en": "Picture taken",
+            "fr": "Image prise",
+            "de": "Bild aufgenommen",
+            "es": "Imagen tomada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "sync_devices",
+      "label": {
+        "en": "Synchronize the Scrypted devices",
+        "fr": "Synchroniser les appareils Scrypted",
+        "de": "Scrypted-Geräte synchronisieren",
+        "es": "Sincronizar los dispositivos de Scrypted"
+      },
+      "description": {
+        "en": "Read the Scrypted device list again, e.g. after adding a camera.",
+        "fr": "Relit la liste des appareils Scrypted, par exemple après l'ajout d'une caméra.",
+        "de": "Liest die Scrypted-Geräteliste erneut, z. B. nach dem Hinzufügen einer Kamera.",
+        "es": "Vuelve a leer la lista de dispositivos de Scrypted, p. ej. tras añadir una cámara."
+      },
+      "timeout_seconds": 30,
+      "outputs": [
+        {
+          "key": "devices",
+          "type": "number",
+          "label": {
+            "en": "Devices found",
+            "fr": "Appareils trouvés",
+            "de": "Gefundene Geräte",
+            "es": "Dispositivos encontrados"
+          }
+        }
+      ]
+    }
+  ]
+}

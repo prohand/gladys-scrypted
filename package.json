@@ -1,6 +1,6 @@
 {
   "name": "gladys-scrypted",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Gladys Assistant external integration for Scrypted: cameras, doorbells, motion and object detection, switches.",
   "type": "module",

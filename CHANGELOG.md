@@ -4,7 +4,11 @@ All notable changes to this integration are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [semantic versioning](https://semver.org/), bumped by the Release workflow.
 
-Describe each change under `## [Unreleased]` as you make it. The Release
+Describe each change under `## [Unreleased]
+
+## [1.0.1] - 2026-10-19
+
+` as you make it. The Release
 workflow moves that section under the version it ships, and the section becomes
 the notes of the version's GitHub Release.
 
@@ -41,4 +45,5 @@ the notes of the version's GitHub Release.
 - The password or login token is a secret field, and never written in the
   logs: the login answer the Scrypted client prints is masked.
 
-[Unreleased]: https://github.com/prohand/gladys-scrypted/commits/main
+[Unreleased]: https://github.com/prohand/gladys-scrypted/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/prohand/gladys-scrypted/releases/tag/v1.0.1

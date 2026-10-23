@@ -10,6 +10,10 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-10-23
+
+- Maintenance release, no functional change.
+
 ## [1.0.2] - 2026-10-19
 
 - Maintenance release, no functional change.
@@ -47,6 +51,7 @@ the notes of the version's GitHub Release.
 - The password or login token is a secret field, and never written in the
   logs: the login answer the Scrypted client prints is masked.
 
-[Unreleased]: https://github.com/prohand/gladys-scrypted/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/prohand/gladys-scrypted/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/prohand/gladys-scrypted/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/prohand/gladys-scrypted/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/prohand/gladys-scrypted/releases/tag/v1.0.1

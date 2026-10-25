@@ -67,8 +67,15 @@ const IGNORED_CLASSES = new Set(['motion', 'audio', 'ring', 'doorbell']);
 // Detections remembered for the status widget.
 export const RECENT_DETECTIONS = 8;
 
-// Device-level changes that alter what is offered to Gladys.
-const DEVICE_LIST_PROPERTIES = new Set(['interfaces', 'name', 'type', 'providedInterfaces']);
+// Device-level changes that alter what is offered to Gladys (the PTZ
+// capabilities carry the presets list).
+const DEVICE_LIST_PROPERTIES = new Set([
+  'interfaces',
+  'name',
+  'type',
+  'providedInterfaces',
+  'ptzCapabilities',
+]);
 
 /**
  * The trigger class of a detector class name, or null when it is not an
@@ -96,10 +103,21 @@ export class EventRouter {
    * @param {() => ReturnType<import('../config.js').normalizeConfig>} options.getConfig
    * @param {() => void} [options.onDevicesChanged]
    * @param {() => void} [options.onDetection] a scene event was fired
+   * @param {(id: string) => boolean} [options.isEnabled] the camera is enabled in Gladys
    * @param {() => number} [options.now]
    */
-  constructor({ gladys, catalog, snapshots, getConfig, onDevicesChanged, onDetection, now }) {
+  constructor({
+    gladys,
+    catalog,
+    snapshots,
+    getConfig,
+    onDevicesChanged,
+    onDetection,
+    isEnabled,
+    now,
+  }) {
     this.gladys = gladys;
+    this.isEnabled = isEnabled ?? (() => true);
     this.catalog = catalog;
     this.snapshots = snapshots;
     this.getConfig = getConfig;
@@ -136,8 +154,12 @@ export class EventRouter {
     if (!device) {
       return;
     }
+    // A camera disabled in Gladys: what it sees stays in Scrypted.
+    const hidden = isCamera(device) && !this.isEnabled(device.id);
     if (details.eventInterface === INTERFACES.OBJECT_DETECTOR) {
-      await this.handleDetections(device, data);
+      if (!hidden) {
+        await this.handleDetections(device, data);
+      }
       return;
     }
     const spec = featureSpecsOf(device).find(
@@ -145,7 +167,7 @@ export class EventRouter {
         candidate.property === details.property &&
         (!details.eventInterface || details.eventInterface === candidate.interface),
     );
-    if (spec) {
+    if (spec && !(hidden && spec.key === FEATURE_KEYS.MOTION)) {
       await this.handleState(device, spec, data);
     }
   }

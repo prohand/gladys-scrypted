@@ -41,6 +41,7 @@ test('the category follows the Scrypted device type', () => {
   assert.deepEqual(featuresOf(devices, 'Siren'), ['siren/binary']);
   assert.deepEqual(featuresOf(devices, 'Front door'), [
     'camera/image',
+    'camera/enabled',
     'motion-sensor/binary',
     'doorbell/ring',
     'battery/integer',
@@ -51,6 +52,44 @@ test('the category follows the Scrypted device type', () => {
     'humidity-sensor/decimal',
     'opening-sensor/binary',
   ]);
+});
+
+test('a PTZ camera gets move and preset features from its capabilities only', () => {
+  const ptz = (capabilities) =>
+    featureSpecsOf({
+      id: '9',
+      name: 'Cam',
+      type: 'Camera',
+      interfaces: ['Camera', 'PanTiltZoom'],
+      ptz: capabilities,
+    }).map((spec) => spec.key);
+  assert.deepEqual(ptz({ pan: true, presets: { home: 'Home' } }), [
+    'image',
+    'enabled',
+    'ptz-move',
+    'ptz-preset',
+  ]);
+  assert.deepEqual(ptz({ zoom: true }), ['image', 'enabled', 'ptz-move']);
+  assert.deepEqual(ptz(null), ['image', 'enabled'], 'nothing declared, nothing offered');
+});
+
+test('presets with ids that are not numbers take their position', () => {
+  const catalog = new Catalog(createFakeGladys());
+  const device = catalog.buildDevice({
+    id: '9',
+    name: 'Cam',
+    type: 'Camera',
+    interfaces: ['PanTiltZoom'],
+    ptz: { presets: { home: 'Home', gate: 'Gate' } },
+  });
+  const preset = device.features.find((feature) => feature.type === 'preset');
+  assert.deepEqual(
+    preset.supported_options.map((option) => [option.value, option.label]),
+    [
+      [1, 'Home'],
+      [2, 'Gate'],
+    ],
+  );
 });
 
 test('external ids are built from the Scrypted id, not the name', () => {

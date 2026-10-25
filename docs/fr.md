@@ -6,21 +6,24 @@ Amcrest, UniFi, ONVIF, Ring, Nest…), vos sonnettes et leurs détections.
 Scrypted fait le travail vidéo ; Gladys reçoit les appareils, les images et les
 événements, et en fait des scènes et des tableaux de bord.
 
+Nécessite **Gladys 5.3.0** ou une version plus récente.
+
 ## Ce que vous obtenez
 
-| Dans Scrypted                                  | Dans Gladys                                                   |
-| ---------------------------------------------- | ------------------------------------------------------------- |
-| Caméra                                         | Caméra (images)                                               |
-| Détecteur de mouvement (caméra ou capteur)     | Détecteur de mouvement + déclencheur « détecte un mouvement » |
-| Bouton de sonnette                             | Sonnette + déclencheur « on sonne »                           |
-| Détection d'objets (NVR, plugins de détection) | Déclencheur « détecte un objet »                              |
-| Lumière (allumage, luminosité)                 | Lumière                                                       |
-| Interrupteur, prise                            | Interrupteur                                                  |
-| Sirène                                         | Sirène                                                        |
-| Serrure                                        | Serrure                                                       |
-| Capteur de porte / fenêtre                     | Capteur d'ouverture                                           |
-| Thermomètre, hygromètre                        | Capteur de température, capteur d'humidité                    |
-| Batterie                                       | Niveau de batterie                                            |
+| Dans Scrypted                                  | Dans Gladys                                                                 |
+| ---------------------------------------------- | --------------------------------------------------------------------------- |
+| Caméra                                         | Caméra (images)                                                             |
+| Caméra motorisée (PTZ)                         | Pas de rotation / inclinaison / zoom, positions enregistrées dans la caméra |
+| Détecteur de mouvement (caméra ou capteur)     | Détecteur de mouvement + déclencheur « détecte un mouvement »               |
+| Bouton de sonnette                             | Sonnette + déclencheur « on sonne »                                         |
+| Détection d'objets (NVR, plugins de détection) | Déclencheur « détecte un objet »                                            |
+| Lumière (allumage, luminosité)                 | Lumière                                                                     |
+| Interrupteur, prise                            | Interrupteur                                                                |
+| Sirène                                         | Sirène                                                                      |
+| Serrure                                        | Serrure                                                                     |
+| Capteur de porte / fenêtre                     | Capteur d'ouverture                                                         |
+| Thermomètre, hygromètre                        | Capteur de température, capteur d'humidité                                  |
+| Batterie                                       | Niveau de batterie                                                          |
 
 Scrypted envoie chaque changement au moment où il arrive : rien n'est
 interrogé en boucle.
@@ -100,6 +103,22 @@ Chaque caméra envoie une image :
 Gladys accepte des images jusqu'à 150 Ko : elles sont redemandées plus petites
 à Scrypted jusqu'à ce qu'elles tiennent. Une caméra n'envoie jamais plus de
 12 images par minute.
+
+## Commandes des caméras
+
+**Activée dans Gladys** (sur chaque caméra) est un interrupteur de
+confidentialité côté Gladys : désactivée, Gladys ne prend plus d'image de la
+caméra et ignore ses détections de mouvement et d'objets, pendant que Scrypted
+continue d'enregistrer. Le choix survit à un redémarrage.
+
+Une **caméra motorisée** (un plugin Scrypted avec rotation / inclinaison /
+zoom : ONVIF, Reolink, Amcrest…) reçoit une commande **PTZ** dans les
+directions que déclare la caméra, un petit pas par appui, et une liste
+**Position** avec les positions enregistrées dans la caméra. Une position
+renommée dans la caméra l'est aussi dans Gladys.
+
+Pour une caméra ajoutée avant ces commandes, cliquez sur **Mettre à jour**
+dans l'onglet **Découverte** pour les obtenir.
 
 ## Scènes
 

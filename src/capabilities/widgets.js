@@ -212,6 +212,22 @@ async function cameraContent(runtime, settings) {
       ],
     };
   }
+  if (!runtime.privacy.isEnabled(device.id)) {
+    return {
+      ttl_seconds: 300,
+      components: [
+        {
+          type: 'text',
+          text: {
+            en: `${device.name} is disabled in Gladys.`,
+            fr: `${device.name} est désactivée dans Gladys.`,
+            de: `${device.name} ist in Gladys deaktiviert.`,
+            es: `${device.name} está desactivada en Gladys.`,
+          },
+        },
+      ],
+    };
+  }
   let picture = runtime.snapshots.latest(device.id);
   if (!picture && runtime.session) {
     try {

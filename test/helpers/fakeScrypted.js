@@ -105,6 +105,7 @@ export function createFakeScrypted({
       setBrightness: record('setBrightness'),
       lock: record('lock'),
       unlock: record('unlock'),
+      ptzCommand: record('ptzCommand'),
       async takePicture(options) {
         calls.push({ id, method: 'takePicture', args: [options] });
         return { mimeType: 'image/jpeg', bytes: picture(options?.picture?.width ?? 0) };

@@ -15,8 +15,9 @@ import { isConfigured } from './config.js';
 import { localize, pick } from './i18n.js';
 import { Catalog } from './scrypted/catalog.js';
 import { EventRouter } from './scrypted/events.js';
-import { specByKey, isCamera } from './scrypted/features.js';
+import { FEATURE_KEYS, specByKey, isCamera } from './scrypted/features.js';
 import { ScryptedLink, describeError } from './scrypted/link.js';
+import { PrivacyGate } from './scrypted/privacy.js';
 import { openScryptedSession } from './scrypted/session.js';
 import { Snapshots } from './scrypted/snapshots.js';
 
@@ -77,6 +78,7 @@ export class Runtime {
    * @param {() => void} [options.onWidgetsStale] the widgets show old data
    * @param {object} [options.timers]
    * @param {() => number} [options.now]
+   * @param {string} [options.dataDir] where the privacy choices are kept (/data)
    */
   constructor({
     gladys,
@@ -84,8 +86,11 @@ export class Runtime {
     onWidgetsStale,
     timers = globalThis,
     now = Date.now,
+    dataDir,
   }) {
     this.gladys = gladys;
+    this.privacy = new PrivacyGate({ dataDir });
+    const isEnabled = (id) => this.privacy.isEnabled(id);
     this.timers = timers;
     this.onWidgetsStale = onWidgetsStale ?? (() => {});
     this.config = null;
@@ -97,6 +102,7 @@ export class Runtime {
       catalog: this.catalog,
       getSession: () => this.link.session,
       onPicture: () => this.onWidgetsStale(),
+      isEnabled,
       now,
       timers,
     });
@@ -107,6 +113,7 @@ export class Runtime {
       getConfig: () => this.config,
       onDevicesChanged: () => this.scheduleResync(),
       onDetection: () => this.onWidgetsStale(),
+      isEnabled,
       now,
     });
     this.link = new ScryptedLink({
@@ -125,6 +132,7 @@ export class Runtime {
   /** Start, or restart with a new config. Resolves whether Scrypted answered. */
   async start(config) {
     this.config = config;
+    await this.privacy.load();
     return this.link.start(config);
   }
 
@@ -138,6 +146,7 @@ export class Runtime {
     await this.publishDevices();
     const states = this.catalog.currentStates(session);
     this.router.prime(states);
+    states.push(...this.enabledStates());
     if (states.length > 0) {
       await this.gladys.publishChangedStates(states);
     }
@@ -220,6 +229,7 @@ export class Runtime {
     this.catalog.refresh(session);
     this.snapshots.prune();
     await this.publishDevices();
+    await this.gladys.publishChangedStates(this.enabledStates());
     await this.publishTransports();
     this.onWidgetsStale();
     return this.catalog.list().length;
@@ -234,19 +244,47 @@ export class Runtime {
     return device;
   }
 
+  /** The privacy gate of every camera: Gladys' own, known without Scrypted. */
+  enabledStates() {
+    return this.catalog.cameras().map((camera) => ({
+      device_feature_external_id: this.catalog.ids(camera).feature(FEATURE_KEYS.ENABLED),
+      state: this.privacy.isEnabled(camera.id) ? 1 : 0,
+    }));
+  }
+
+  /** Turn a camera on or off in Gladys (the `enabled` feature). */
+  async setEnabled(device, enabled) {
+    await this.privacy.set(device.id, enabled);
+    if (!enabled) {
+      // Nothing of a hidden camera is served, its last picture included.
+      this.snapshots.forget(device.id);
+    }
+    await this.gladys.publishState(
+      this.catalog.ids(device).feature(FEATURE_KEYS.ENABLED),
+      enabled ? 1 : 0,
+    );
+    logger.info(`${device.name} ${enabled ? 'enabled' : 'disabled'} in Gladys`);
+    this.onWidgetsStale();
+  }
+
   /** onSetValue: apply a Gladys command through the Scrypted interface. */
   async setValue(gladysDevice, feature, value) {
+    const device = this.scryptedDevice(gladysDevice.external_id);
+    const key = feature.external_id.slice(gladysDevice.external_id.length + 1);
+    if (key === FEATURE_KEYS.ENABLED && isCamera(device)) {
+      // Gladys' own switch: no Scrypted call, so no session needed.
+      await this.setEnabled(device, Number(value) === 1);
+      return;
+    }
     const session = this.link.session;
     if (!session) {
       throw new Error('Scrypted is not connected');
     }
-    const device = this.scryptedDevice(gladysDevice.external_id);
-    const key = feature.external_id.slice(gladysDevice.external_id.length + 1);
     const spec = specByKey(key);
     if (!spec?.apply) {
       throw new Error(`The feature ${feature.external_id} cannot be controlled`);
     }
-    await spec.apply(session.systemManager.getDeviceById(device.id), Number(value));
+    await spec.apply(session.systemManager.getDeviceById(device.id), Number(value), device);
     // has_feedback: the state comes back as a Scrypted event, confirmed by
     // the device. Nothing published here.
   }
@@ -263,7 +301,7 @@ export class Runtime {
    */
   async snapshot(externalId) {
     const device = this.catalog.byExternalId(externalId);
-    if (!device || !isCamera(device) || !this.link.session) {
+    if (!device || !isCamera(device) || !this.link.session || !this.privacy.isEnabled(device.id)) {
       return false;
     }
     const image = await this.snapshots.capture(device.id, 'event');

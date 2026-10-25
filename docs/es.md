@@ -6,21 +6,24 @@ Amcrest, UniFi, ONVIF, Ring, Nest…), sus timbres y sus detecciones. Scrypted
 hace el trabajo de vídeo; Gladys recibe los dispositivos, las imágenes y los
 eventos, y los convierte en escenas y paneles.
 
+Requiere **Gladys 5.3.0** o posterior.
+
 ## Lo que obtiene
 
-| En Scrypted                                      | En Gladys                                              |
-| ------------------------------------------------ | ------------------------------------------------------ |
-| Cámara                                           | Cámara (imágenes)                                      |
-| Sensor de movimiento (cámara o sensor)           | Sensor de movimiento + disparador «detecta movimiento» |
-| Botón del timbre                                 | Timbre + disparador «se pulsa un timbre»               |
-| Detección de objetos (NVR, plugins de detección) | Disparador «detecta un objeto»                         |
-| Luz (encendido, brillo)                          | Luz                                                    |
-| Interruptor, enchufe                             | Interruptor                                            |
-| Sirena                                           | Sirena                                                 |
-| Cerradura                                        | Cerradura                                              |
-| Sensor de puerta / ventana                       | Sensor de apertura                                     |
-| Termómetro, higrómetro                           | Sensor de temperatura, sensor de humedad               |
-| Batería                                          | Nivel de batería                                       |
+| En Scrypted                                      | En Gladys                                                             |
+| ------------------------------------------------ | --------------------------------------------------------------------- |
+| Cámara                                           | Cámara (imágenes)                                                     |
+| Cámara motorizada (PTZ)                          | Pasos de giro / inclinación / zoom, posiciones guardadas en la cámara |
+| Sensor de movimiento (cámara o sensor)           | Sensor de movimiento + disparador «detecta movimiento»                |
+| Botón del timbre                                 | Timbre + disparador «se pulsa un timbre»                              |
+| Detección de objetos (NVR, plugins de detección) | Disparador «detecta un objeto»                                        |
+| Luz (encendido, brillo)                          | Luz                                                                   |
+| Interruptor, enchufe                             | Interruptor                                                           |
+| Sirena                                           | Sirena                                                                |
+| Cerradura                                        | Cerradura                                                             |
+| Sensor de puerta / ventana                       | Sensor de apertura                                                    |
+| Termómetro, higrómetro                           | Sensor de temperatura, sensor de humedad                              |
+| Batería                                          | Nivel de batería                                                      |
 
 Scrypted envía cada cambio en el momento en que ocurre: no se consulta nada en
 bucle.
@@ -97,6 +100,22 @@ Cada cámara envía una imagen:
 
 Gladys acepta imágenes de hasta 150 KB: se piden más pequeñas a Scrypted hasta
 que caben. Una cámara nunca envía más de 12 imágenes por minuto.
+
+## Controles de las cámaras
+
+**Activada en Gladys** (en cada cámara) es un interruptor de privacidad del
+lado de Gladys: desactivada, Gladys deja de tomar imágenes de la cámara e
+ignora sus detecciones de movimiento y de objetos, mientras Scrypted sigue
+grabando. La elección se conserva tras un reinicio.
+
+Una **cámara motorizada** (un plugin de Scrypted con giro / inclinación /
+zoom: ONVIF, Reolink, Amcrest…) recibe un control **PTZ** en las direcciones
+que declara la cámara, un paso corto por pulsación, y una lista **Posición**
+con las posiciones guardadas en la cámara. Una posición renombrada en la
+cámara también se renombra en Gladys.
+
+Para una cámara añadida antes de estos controles, haga clic en **Actualizar**
+en la pestaña **Descubrir** para obtenerlos.
 
 ## Escenas
 

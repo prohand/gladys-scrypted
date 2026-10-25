@@ -38,11 +38,21 @@ export class Snapshots {
    * @param {import('./catalog.js').Catalog} options.catalog
    * @param {() => any} options.getSession the current Scrypted session, or null
    * @param {(id: string) => void} [options.onPicture] a new picture is kept
+   * @param {(id: string) => boolean} [options.isEnabled] the camera is enabled in Gladys
    * @param {() => number} [options.now]
    * @param {object} [options.timers]
    */
-  constructor({ gladys, catalog, getSession, onPicture, now = Date.now, timers = globalThis }) {
+  constructor({
+    gladys,
+    catalog,
+    getSession,
+    onPicture,
+    isEnabled = () => true,
+    now = Date.now,
+    timers = globalThis,
+  }) {
     this.gladys = gladys;
+    this.isEnabled = isEnabled;
     this.catalog = catalog;
     this.getSession = getSession;
     this.onPicture = onPicture ?? (() => {});
@@ -82,6 +92,9 @@ export class Snapshots {
     const device = this.catalog.get(id);
     if (!device || !isCamera(device)) {
       throw new Error(`Scrypted device ${id} is not a camera`);
+    }
+    if (!this.isEnabled(id)) {
+      throw new Error(`${device.name} is disabled in Gladys`);
     }
     const camera = session.systemManager.getDeviceById(id);
     let lastSize = 0;
@@ -145,6 +158,9 @@ export class Snapshots {
   async publishAll(reason = 'periodic') {
     let published = 0;
     for (const camera of this.catalog.cameras()) {
+      if (!this.isEnabled(camera.id)) {
+        continue;
+      }
       try {
         if (await this.publish(camera.id, reason)) {
           published += 1;
@@ -178,6 +194,11 @@ export class Snapshots {
       this.timers.clearInterval(this.loop);
       this.loop = null;
     }
+  }
+
+  /** Forget the picture of one camera (disabled in Gladys). */
+  forget(id) {
+    this.pictures.delete(id);
   }
 
   /** Forget the pictures of the cameras that are gone. */

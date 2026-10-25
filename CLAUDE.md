@@ -17,9 +17,10 @@ JavaScript template.
 
 What it brings to Gladys: the Scrypted devices (cameras, doorbells, motion,
 lights, switches, sirens, locks, entry/temperature/humidity sensors,
-batteries), camera pictures, scene triggers (motion, doorbell, object
-detected), scene actions (take a picture, synchronize) and two dashboard
-widgets. Gladys 5.1+.
+batteries), camera pictures, PTZ moves and presets, a Gladys-side privacy gate
+per camera (`enabled`), scene triggers (motion, doorbell, object detected),
+scene actions (take a picture, synchronize) and two dashboard widgets.
+Gladys 5.3+ (`gladys_version >=5.3.0`, for the manifest `keywords`).
 
 ## Commands
 
@@ -54,6 +55,7 @@ src/scrypted/features.js     Scrypted interface -> Gladys feature (one entry per
 src/scrypted/catalog.js      Scrypted system state -> Gladys discovery list and states
 src/scrypted/events.js       Scrypted events -> states + scene events (motion, ring, objects)
 src/scrypted/snapshots.js    camera pictures: size fitting, rate limit, periodic loop
+src/scrypted/privacy.js      cameras disabled in Gladys (`enabled`), kept in /data
 src/capabilities/actions.js  Configuration screen buttons (manifest `actions`)
 src/capabilities/scenes.js   scene actions (manifest `scene_actions`)
 src/capabilities/widgets.js  dashboard widgets (manifest `widgets`)
@@ -88,8 +90,16 @@ test/                        node --test against the SDK's fake Gladys + test/he
 - **Camera pictures** are ≤ 150 KB as an `image/jpg;base64,...` string (asked
   smaller until they fit) and ≤ 12 per minute per camera (5.5 s gap). The last
   one is kept for the camera widget under a key that changes with the bytes.
-- **The container rootfs is read-only.** Write only under `/data` (nothing is
-  written today).
+- **PTZ** (`PanTiltZoom` + `ptzCapabilities`): one `Relative` step per move,
+  carrying a `timeout` so a plugin running it as a continuous move stops by
+  itself; only the axes the camera declares are offered. Presets keep their
+  numeric Scrypted id as the Gladys value (position otherwise); a
+  `ptzCapabilities` change re-publishes the device list.
+- **A camera disabled in Gladys** (`enabled` = 0) gives no picture anywhere and
+  its motion / object detections are dropped; its other features carry on.
+- **The container rootfs is read-only.** Write only under `/data`: the only
+  file is `disabled-cameras.json` (`DATA_DIR` overrides the directory; tests
+  pass a temporary one).
 
 ## Rules
 

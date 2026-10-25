@@ -31,6 +31,7 @@ export function readDevices(session) {
       name: String(valueOf(entry, 'name') ?? id),
       type: valueOf(entry, 'type') ?? '',
       interfaces: valueOf(entry, 'interfaces') ?? [],
+      ptz: valueOf(entry, 'ptzCapabilities') ?? null,
     }))
     .filter((device) => featureSpecsOf(device).length > 0)
     .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));

@@ -10,6 +10,26 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Added
+
+- Motorized cameras (Scrypted `PanTiltZoom`): a PTZ control with the directions
+  the camera declares, one short bounded step per press, and the presets saved
+  in the camera.
+- "Enabled in Gladys" switch on every camera: turned off, Gladys gets no picture
+  and no motion or object detection from it; the choice survives a restart.
+  Cameras already created get both with the **Update** button of the Discover
+  tab.
+- Search keywords in the store catalog (NVR, ONVIF, RTSP, Reolink, UniFi
+  Protect…).
+
+### Changed
+
+- Gladys 5.3.0 or later is now required (manifest `keywords`).
+- `@gladysassistant/integration-sdk` 0.16.
+- A siren's on/off feature uses the siren `binary` type constant (same value).
+- The release workflow runs the store admission checks once the image is
+  published; pull requests skip the image check.
+
 ## [1.0.3] - 2026-10-23
 
 - Maintenance release, no functional change.

@@ -6,21 +6,24 @@ Amcrest, UniFi, ONVIF, Ring, Nest…), doorbells and their detections. Scrypted
 does the video work; Gladys gets the devices, the pictures and the events, and
 turns them into scenes and dashboards.
 
+Requires **Gladys 5.3.0** or later.
+
 ## What you get
 
-| In Scrypted                               | In Gladys                                      |
-| ----------------------------------------- | ---------------------------------------------- |
-| Camera                                    | Camera (pictures)                              |
-| Motion sensor (camera or sensor)          | Motion sensor + "sees motion" scene trigger    |
-| Doorbell button                           | Doorbell + "doorbell is pressed" scene trigger |
-| Object detection (NVR, detection plugins) | "detects an object" scene trigger              |
-| Light (on/off, brightness)                | Light                                          |
-| Switch, plug                              | Switch                                         |
-| Siren                                     | Siren                                          |
-| Lock                                      | Lock                                           |
-| Door / window sensor                      | Opening sensor                                 |
-| Thermometer, hygrometer                   | Temperature sensor, humidity sensor            |
-| Battery                                   | Battery level                                  |
+| In Scrypted                               | In Gladys                                            |
+| ----------------------------------------- | ---------------------------------------------------- |
+| Camera                                    | Camera (pictures)                                    |
+| Motorized camera (PTZ)                    | Pan / tilt / zoom steps, presets saved in the camera |
+| Motion sensor (camera or sensor)          | Motion sensor + "sees motion" scene trigger          |
+| Doorbell button                           | Doorbell + "doorbell is pressed" scene trigger       |
+| Object detection (NVR, detection plugins) | "detects an object" scene trigger                    |
+| Light (on/off, brightness)                | Light                                                |
+| Switch, plug                              | Switch                                               |
+| Siren                                     | Siren                                                |
+| Lock                                      | Lock                                                 |
+| Door / window sensor                      | Opening sensor                                       |
+| Thermometer, hygrometer                   | Temperature sensor, humidity sensor                  |
+| Battery                                   | Battery level                                        |
 
 Scrypted pushes every change as it happens: nothing is polled.
 
@@ -94,6 +97,20 @@ Each camera sends a picture:
 
 Gladys takes pictures up to 150 KB: they are asked smaller from Scrypted until
 they fit. A camera never sends more than 12 pictures a minute.
+
+## Camera controls
+
+**Enabled in Gladys** (every camera) is a privacy switch on Gladys' side: turned
+off, Gladys takes no picture of the camera and ignores its motion and object
+detections, while Scrypted keeps recording. The choice survives a restart.
+
+A **motorized camera** (a Scrypted plugin with pan / tilt / zoom: ONVIF,
+Reolink, Amcrest…) gets a **PTZ** control in the directions the camera
+declares, one short step per press, and a **Preset** list with the positions
+saved in the camera. A preset renamed in the camera is renamed in Gladys too.
+
+For a camera added before these controls existed, click **Update** in the
+**Discover** tab to get them.
 
 ## Scenes
 

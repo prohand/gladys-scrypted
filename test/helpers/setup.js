@@ -3,6 +3,9 @@
 // the handlers index.js registers.
 // -----------------------------------------------------------------------------
 
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { createFakeGladys } from '@gladysassistant/integration-sdk/testing';
 import { normalizeConfig } from '../../src/config.js';
 import { registerHandlers } from '../../src/handlers.js';
@@ -22,7 +25,14 @@ export const CONFIGURED = {
 export const deviceId = (id) => `ext:test-integration:device:${id}`;
 export const featureId = (id, key) => `${deviceId(id)}:${key}`;
 
-export async function startRuntime({ config = {}, scrypted = createFakeScrypted() } = {}) {
+/** A fresh directory standing for /data: tests never write the real one. */
+export const tempDataDir = () => mkdtempSync(join(tmpdir(), 'gladys-scrypted-'));
+
+export async function startRuntime({
+  config = {},
+  scrypted = createFakeScrypted(),
+  dataDir = tempDataDir(),
+} = {}) {
   const gladys = createFakeGladys();
   await gladys.connect();
   const timers = createFakeTimers();
@@ -32,9 +42,10 @@ export async function startRuntime({ config = {}, scrypted = createFakeScrypted(
     timers,
     now: timers.now,
     openSession: async () => scrypted,
+    dataDir,
     onWidgetsStale: () => widgetsStale.push(timers.now()),
   });
   registerHandlers(gladys, runtime);
   await runtime.start(normalizeConfig({ ...CONFIGURED, ...config }));
-  return { gladys, scrypted, runtime, timers, widgetsStale };
+  return { gladys, scrypted, runtime, timers, widgetsStale, dataDir };
 }

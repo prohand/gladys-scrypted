@@ -6,21 +6,24 @@ Amcrest, UniFi, ONVIF, Ring, Nest…), Türklingeln und ihre Erkennungen
 zusammenführt. Scrypted erledigt die Videoarbeit; Gladys bekommt die Geräte,
 die Bilder und die Ereignisse und macht daraus Szenen und Dashboards.
 
+Erfordert **Gladys 5.3.0** oder neuer.
+
 ## Was du bekommst
 
-| In Scrypted                               | In Gladys                                        |
-| ----------------------------------------- | ------------------------------------------------ |
-| Kamera                                    | Kamera (Bilder)                                  |
-| Bewegungsmelder (Kamera oder Sensor)      | Bewegungsmelder + Auslöser „erkennt Bewegung“    |
-| Klingeltaste                              | Türklingel + Auslöser „Türklingel wird gedrückt“ |
-| Objekterkennung (NVR, Erkennungs-Plugins) | Auslöser „erkennt ein Objekt“                    |
-| Licht (ein/aus, Helligkeit)               | Licht                                            |
-| Schalter, Steckdose                       | Schalter                                         |
-| Sirene                                    | Sirene                                           |
-| Schloss                                   | Schloss                                          |
-| Tür-/Fenstersensor                        | Öffnungssensor                                   |
-| Thermometer, Hygrometer                   | Temperatursensor, Feuchtigkeitssensor            |
-| Batterie                                  | Batteriestand                                    |
+| In Scrypted                               | In Gladys                                                               |
+| ----------------------------------------- | ----------------------------------------------------------------------- |
+| Kamera                                    | Kamera (Bilder)                                                         |
+| Motorisierte Kamera (PTZ)                 | Schwenk- / Neige- / Zoomschritte, in der Kamera gespeicherte Positionen |
+| Bewegungsmelder (Kamera oder Sensor)      | Bewegungsmelder + Auslöser „erkennt Bewegung“                           |
+| Klingeltaste                              | Türklingel + Auslöser „Türklingel wird gedrückt“                        |
+| Objekterkennung (NVR, Erkennungs-Plugins) | Auslöser „erkennt ein Objekt“                                           |
+| Licht (ein/aus, Helligkeit)               | Licht                                                                   |
+| Schalter, Steckdose                       | Schalter                                                                |
+| Sirene                                    | Sirene                                                                  |
+| Schloss                                   | Schloss                                                                 |
+| Tür-/Fenstersensor                        | Öffnungssensor                                                          |
+| Thermometer, Hygrometer                   | Temperatursensor, Feuchtigkeitssensor                                   |
+| Batterie                                  | Batteriestand                                                           |
 
 Scrypted sendet jede Änderung sofort: Nichts wird abgefragt.
 
@@ -99,6 +102,22 @@ Jede Kamera sendet ein Bild:
 Gladys nimmt Bilder bis 150 KB an: Sie werden bei Scrypted so lange kleiner
 angefordert, bis sie passen. Eine Kamera sendet nie mehr als 12 Bilder pro
 Minute.
+
+## Kamerasteuerung
+
+**In Gladys aktiviert** (bei jeder Kamera) ist ein Privatsphäre-Schalter auf
+der Seite von Gladys: ausgeschaltet nimmt Gladys kein Bild der Kamera mehr auf
+und ignoriert ihre Bewegungs- und Objekterkennungen, während Scrypted weiter
+aufnimmt. Die Wahl übersteht einen Neustart.
+
+Eine **motorisierte Kamera** (ein Scrypted-Plugin mit Schwenken / Neigen /
+Zoom: ONVIF, Reolink, Amcrest…) bekommt eine **PTZ**-Steuerung in den
+Richtungen, die die Kamera angibt, ein kurzer Schritt pro Druck, und eine
+**Preset**-Liste mit den in der Kamera gespeicherten Positionen. Eine in der
+Kamera umbenannte Position wird auch in Gladys umbenannt.
+
+Bei einer Kamera, die vor diesen Steuerungen hinzugefügt wurde, klicke im
+Tab **Entdecken** auf **Aktualisieren**, um sie zu bekommen.
 
 ## Szenen
 

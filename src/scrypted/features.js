@@ -34,6 +34,30 @@ export const INTERFACES = {
   HUMIDITY_SENSOR: 'HumiditySensor',
   ENTRY_SENSOR: 'EntrySensor',
   LOCK: 'Lock',
+  PAN_TILT_ZOOM: 'PanTiltZoom',
+};
+
+// `PanTiltZoomMovement` of @scrypted/types.
+export const PTZ_MOVEMENTS = { RELATIVE: 'Relative', PRESET: 'Preset' };
+
+// One step of a Gladys move: a tenth of the range (pan / tilt -1..1, zoom
+// 0..1), relative to where the camera stands. The step also carries a
+// duration, so a plugin that runs it as a continuous move stops by itself: a
+// lost stop must never leave a camera turning against its end stop.
+export const PTZ_STEP = 0.1;
+export const PTZ_STEP_TIMEOUT_MS = 1_000;
+
+/**
+ * The values of the Gladys `move` feature (SDK camera / move): 0 is stop,
+ * always accepted and never listed. `axis` is the capability that brings it.
+ */
+export const PTZ_MOVES = {
+  1: { axis: 'pan', delta: -PTZ_STEP, label: 'Pan left' },
+  2: { axis: 'pan', delta: PTZ_STEP, label: 'Pan right' },
+  3: { axis: 'tilt', delta: PTZ_STEP, label: 'Tilt up' },
+  4: { axis: 'tilt', delta: -PTZ_STEP, label: 'Tilt down' },
+  5: { axis: 'zoom', delta: PTZ_STEP, label: 'Zoom in' },
+  6: { axis: 'zoom', delta: -PTZ_STEP, label: 'Zoom out' },
 };
 
 // Scrypted device types (`ScryptedDeviceType` of @scrypted/types) the mapping
@@ -50,6 +74,7 @@ export const DEVICE_TYPES = {
 // Feature keys (the last part of the feature external ids).
 export const FEATURE_KEYS = {
   IMAGE: 'image',
+  ENABLED: 'enabled',
   MOTION: 'motion',
   RING: 'ring',
   ON: 'on',
@@ -59,6 +84,8 @@ export const FEATURE_KEYS = {
   HUMIDITY: 'humidity',
   OPENING: 'opening',
   LOCK: 'lock',
+  PTZ_MOVE: 'ptz-move',
+  PTZ_PRESET: 'ptz-preset',
 };
 
 const binary = (value) => (value === true || value === 1 ? 1 : 0);
@@ -75,10 +102,53 @@ const finite = (value, digits = 0) => {
 
 const hasType = (type) => (device) => device.type === type;
 
-const ON_OFF_CATEGORIES = {
-  [DEVICE_TYPES.LIGHT]: CATEGORIES.LIGHT,
-  [DEVICE_TYPES.SIREN]: CATEGORIES.SIREN,
+// A light is a light and a siren a siren in Gladys too: the dashboard and the
+// voice commands depend on the category. Each has its own `binary` type.
+const ON_OFF_FEATURES = {
+  [DEVICE_TYPES.LIGHT]: { category: CATEGORIES.LIGHT, type: TYPES.LIGHT.BINARY },
+  [DEVICE_TYPES.SIREN]: { category: CATEGORIES.SIREN, type: TYPES.SIREN.BINARY },
 };
+const SWITCH_FEATURE = { category: CATEGORIES.SWITCH, type: TYPES.SWITCH.BINARY };
+
+/** The Gladys move values a PTZ camera supports, from its `ptzCapabilities`. */
+export function ptzMovesOf(device) {
+  const capabilities = device.ptz ?? {};
+  return Object.keys(PTZ_MOVES)
+    .map(Number)
+    .filter((value) => capabilities[PTZ_MOVES[value].axis] === true);
+}
+
+/**
+ * The presets of a PTZ camera as Gladys options: `{ value, id, label }`.
+ * Scrypted keys them by id (a string): numeric ids keep their number as the
+ * Gladys value, so a scene keeps its preset when another one is added; other
+ * ids take their position in the list, from 1.
+ */
+export function ptzPresetsOf(device) {
+  const entries = Object.entries(device.ptz?.presets ?? {});
+  const numeric = entries.every(([id]) => /^[1-9]\d{0,8}$/.test(id));
+  return entries.map(([id, name], index) => ({
+    value: numeric ? Number(id) : index + 1,
+    id,
+    label: String(name || id).slice(0, 100),
+  }));
+}
+
+async function ptzMove(proxy, value) {
+  if (value === 0) {
+    // Steps end by themselves (see PTZ_STEP_TIMEOUT_MS): nothing to stop.
+    return undefined;
+  }
+  const move = PTZ_MOVES[value];
+  if (!move) {
+    throw new Error(`Unknown PTZ move ${value}`);
+  }
+  return proxy.ptzCommand({
+    movement: PTZ_MOVEMENTS.RELATIVE,
+    [move.axis]: move.delta,
+    timeout: PTZ_STEP_TIMEOUT_MS,
+  });
+}
 
 /**
  * @typedef {object} FeatureSpec
@@ -87,7 +157,8 @@ const ON_OFF_CATEGORIES = {
  * @property {(device: ScryptedDeviceInfo) => boolean} [when] extra condition
  * @property {string} [property] Scrypted property holding the state
  * @property {(value: unknown) => number | undefined} [toState] property -> Gladys state
- * @property {(device: any, value: number) => Promise<unknown>} [apply] Gladys value -> Scrypted call
+ * @property {(device: any, value: number, info: ScryptedDeviceInfo) => Promise<unknown>} [apply]
+ *   Gladys value -> Scrypted call, on the device proxy
  * @property {(device: ScryptedDeviceInfo) => object} describe the Gladys feature, minus its external id
  *
  * @typedef {object} ScryptedDeviceInfo
@@ -95,6 +166,8 @@ const ON_OFF_CATEGORIES = {
  * @property {string} name
  * @property {string} type Scrypted device type
  * @property {string[]} interfaces
+ * @property {{ pan?: boolean, tilt?: boolean, zoom?: boolean,
+ *   presets?: Record<string, string> } | null} [ptz] `ptzCapabilities`
  */
 
 /** @type {FeatureSpec[]} */
@@ -113,6 +186,22 @@ export const FEATURE_SPECS = [
       keep_history: false,
       min: 0,
       max: 0,
+    }),
+  },
+  {
+    // The Gladys-side privacy gate (see privacy.js): no Scrypted property,
+    // the runtime keeps and applies it.
+    key: FEATURE_KEYS.ENABLED,
+    interface: INTERFACES.CAMERA,
+    describe: () => ({
+      name: 'Enabled in Gladys',
+      category: CATEGORIES.CAMERA,
+      type: TYPES.CAMERA.ENABLED,
+      read_only: false,
+      has_feedback: true,
+      keep_history: true,
+      min: 0,
+      max: 1,
     }),
   },
   {
@@ -158,11 +247,7 @@ export const FEATURE_SPECS = [
     apply: (device, value) => (value === 1 ? device.turnOn() : device.turnOff()),
     describe: (device) => ({
       name: 'On/Off',
-      // A light is a light and a siren a siren in Gladys too: the dashboard
-      // and the voice commands depend on the category.
-      category: ON_OFF_CATEGORIES[device.type] ?? CATEGORIES.SWITCH,
-      // `binary` in each of the three categories.
-      type: TYPES.SWITCH.BINARY,
+      ...(ON_OFF_FEATURES[device.type] ?? SWITCH_FEATURE),
       read_only: false,
       has_feedback: true,
       keep_history: true,
@@ -275,6 +360,62 @@ export const FEATURE_SPECS = [
       min: 0,
       max: 1,
     }),
+  },
+  {
+    // Motorized cameras: one step per command, in the directions the camera
+    // declares. No state: a step is an order, not a position.
+    key: FEATURE_KEYS.PTZ_MOVE,
+    interface: INTERFACES.PAN_TILT_ZOOM,
+    when: (device) => ptzMovesOf(device).length > 0,
+    apply: (device, value) => ptzMove(device, value),
+    describe: (device) => ({
+      name: 'PTZ',
+      category: CATEGORIES.CAMERA,
+      type: TYPES.CAMERA.MOVE,
+      read_only: false,
+      has_feedback: false,
+      keep_history: false,
+      min: 0,
+      max: 6,
+      supported_options: ptzMovesOf(device).map((value, index) => ({
+        value,
+        label: PTZ_MOVES[value].label,
+        sort_order: index,
+      })),
+    }),
+  },
+  {
+    // The positions saved in the camera. Re-published with the device list
+    // when they change, so a renamed preset shows its new name.
+    key: FEATURE_KEYS.PTZ_PRESET,
+    interface: INTERFACES.PAN_TILT_ZOOM,
+    when: (device) => ptzPresetsOf(device).length > 0,
+    apply: (device, value, info) => {
+      const preset = ptzPresetsOf(info).find((option) => option.value === value);
+      if (!preset) {
+        throw new Error(`Unknown PTZ preset ${value}`);
+      }
+      return device.ptzCommand({ movement: PTZ_MOVEMENTS.PRESET, preset: preset.id });
+    },
+    describe: (device) => {
+      const presets = ptzPresetsOf(device);
+      const values = presets.map((preset) => preset.value);
+      return {
+        name: 'Preset',
+        category: CATEGORIES.CAMERA,
+        type: TYPES.CAMERA.PRESET,
+        read_only: false,
+        has_feedback: false,
+        keep_history: false,
+        min: Math.min(...values),
+        max: Math.max(...values),
+        supported_options: presets.map((preset, index) => ({
+          value: preset.value,
+          label: preset.label,
+          sort_order: index,
+        })),
+      };
+    },
   },
 ];
 

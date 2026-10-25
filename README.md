@@ -10,6 +10,8 @@ with the [integration SDK](https://github.com/GladysAssistant/integration-sdk-js
 User documentation: [English](docs/en.md) · [Français](docs/fr.md) ·
 [Deutsch](docs/de.md) · [Español](docs/es.md).
 
+Requires Gladys 5.3.0 or later.
+
 ## Features
 
 - **Local and cloud.** The manifest declares `"transports": ["local", "cloud"]`:
@@ -33,13 +35,15 @@ User documentation: [English](docs/en.md) · [Français](docs/fr.md) ·
   | `Thermometer`              | `temperature-sensor` / `decimal`        |
   | `HumiditySensor`           | `humidity-sensor` / `decimal`           |
   | `Battery`                  | `battery` / `integer`                   |
+  | `PanTiltZoom`              | `camera` / `move` and `preset`          |
+  | `Camera` (Gladys side)     | `camera` / `enabled` (privacy gate)     |
 
   Scrypted pushes every change: nothing is polled.
 
 - **Camera pictures** on a timer, on every event and on request (dashboard,
   chat, scene), sized under the 150 KB Gladys accepts and never more than 12 a
   minute per camera.
-- **Scene triggers** (Gladys 5.1+): `motion_detected`, `doorbell_pressed`,
+- **Scene triggers**: `motion_detected`, `doorbell_pressed`,
   `object_detected` (person, vehicle, animal, package, face, plate, other —
   with a per-camera pause between two detections of the same kind).
 - **Scene actions**: `take_snapshot`, `sync_devices`.

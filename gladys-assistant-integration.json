@@ -8,8 +8,8 @@
     "de": "Kameras, Türklingeln, Bewegungs- und Objekterkennung, Schalter und Schlösser aus Scrypted.",
     "es": "Cámaras, timbres, detección de movimiento y objetos, enchufes y cerraduras de Scrypted."
   },
-  "version": "1.0.3",
-  "docker_image": "ghcr.io/prohand/gladys-scrypted:1.0.3",
+  "version": "1.1.0",
+  "docker_image": "ghcr.io/prohand/gladys-scrypted:1.1.0",
   "gladys_version": ">=5.3.0",
   "cover_image": "https://raw.githubusercontent.com/prohand/gladys-scrypted/main/cover.png",
   "categories": ["security", "multimedia"],

@@ -10,6 +10,10 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Security
+
+- Dependencies updated to fix known vulnerabilities (npm audit).
+
 ## [1.1.0] - 2026-10-25
 
 ### Added

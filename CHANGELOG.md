@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-16
+
 ### Security
 
 - Dependencies updated to fix known vulnerabilities (npm audit).
@@ -77,7 +79,8 @@ the notes of the version's GitHub Release.
 - The password or login token is a secret field, and never written in the
   logs: the login answer the Scrypted client prints is masked.
 
-[Unreleased]: https://github.com/prohand/gladys-scrypted/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/prohand/gladys-scrypted/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/prohand/gladys-scrypted/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/prohand/gladys-scrypted/compare/v1.0.3...v1.1.0
 [1.0.3]: https://github.com/prohand/gladys-scrypted/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/prohand/gladys-scrypted/compare/v1.0.1...v1.0.2
